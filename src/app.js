@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import categoriasRoutes from './routes/categorias.routes.js';
 import productosRoutes from './routes/productos.routes.js';
 import sucursalesRoutes from './routes/sucursales.routes.js';
+import proveedoresRoutes from './routes/proveedores.routes.js';
 
 const app = express();
 
@@ -21,5 +22,6 @@ app.use('/img', express.static(path.join(__dirname, '../../frontend/img')));
 app.use("/api/categorias", categoriasRoutes);
 app.use("/api/productos", productosRoutes);
 app.use("/api/sucursales", sucursalesRoutes);
+app.use("/api/proveedores", proveedoresRoutes);
 
 export default app;
