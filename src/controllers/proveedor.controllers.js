@@ -1,19 +1,20 @@
-import getConnection from "../db/database.js";
+import Proveedor from '../models/Proveedores.js';
 
+
+// Obtener todos los proveedores
 export const getProveedores = async (req, res) => {
   try {
-    const conn = await getConnection();
-    const result = await conn.query("SELECT * FROM proveedores");
-    res.json(result);
+    const proveedores = await Proveedor.find();
+    res.json(proveedores);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener proveedores" });
   }
 };
 
+// Obtener un proveedor por ID
 export const getProveedor = async (req, res) => {
   try {
-    const conn = await getConnection();
-    const [proveedor] = await conn.query("SELECT * FROM proveedores WHERE id = ?", [req.params.id]);
+    const proveedor = await Proveedor.findById(req.params.id);
     if (!proveedor) return res.status(404).json({ error: "Proveedor no encontrado" });
     res.json(proveedor);
   } catch (err) {
@@ -21,47 +22,33 @@ export const getProveedor = async (req, res) => {
   }
 };
 
+// Crear un proveedor nuevo
 export const createProveedor = async (req, res) => {
-  const { id, nombre, contacto, telefono, email, direccion } = req.body;
-  if (!id || !nombre) {
-    return res.status(400).json({ error: "Faltan campos obligatorios" });
-  }
   try {
-    const conn = await getConnection();
-    await conn.query(
-      "INSERT INTO proveedores (id, nombre, contacto, telefono, email, direccion) VALUES (?, ?, ?, ?, ?, ?)",
-      [id, nombre, contacto, telefono, email, direccion]
-    );
-    res.status(201).json({ mensaje: "Proveedor creado", proveedor: req.body });
+    const nuevoProveedor = new Proveedor(req.body);
+    await nuevoProveedor.save();
+    res.status(201).json(nuevoProveedor);
   } catch (err) {
-    res.status(500).json({ error: "Error al crear proveedor" });
+    res.status(400).json({ error: "Error al crear proveedor" });
   }
 };
 
+// Actualizar un proveedor
 export const updateProveedor = async (req, res) => {
-  const { nombre, contacto, telefono, email, direccion } = req.body;
   try {
-    const conn = await getConnection();
-    const result = await conn.query(
-      "UPDATE proveedores SET nombre=?, contacto=?, telefono=?, email=?, direccion=? WHERE id=?",
-      [nombre, contacto, telefono, email, direccion, req.params.id]
-    );
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Proveedor no encontrado" });
-    }
-    res.json({ mensaje: "Proveedor actualizado" });
+    const proveedorActualizado = await Proveedor.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!proveedorActualizado) return res.status(404).json({ error: "Proveedor no encontrado" });
+    res.json(proveedorActualizado);
   } catch (err) {
     res.status(500).json({ error: "Error al actualizar proveedor" });
   }
 };
 
+// Eliminar un proveedor
 export const deleteProveedor = async (req, res) => {
   try {
-    const conn = await getConnection();
-    const result = await conn.query("DELETE FROM proveedores WHERE id = ?", [req.params.id]);
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Proveedor no encontrado" });
-    }
+    const proveedorEliminado = await Proveedor.findByIdAndDelete(req.params.id);
+    if (!proveedorEliminado) return res.status(404).json({ error: "Proveedor no encontrado" });
     res.json({ mensaje: "Proveedor eliminado" });
   } catch (err) {
     res.status(500).json({ error: "Error al eliminar proveedor" });

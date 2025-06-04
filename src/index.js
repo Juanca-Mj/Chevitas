@@ -1,8 +1,26 @@
-import app from "./app.js";    
+import app from "./app.js";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-const main = () => {
+// Cargar variables de entorno
+dotenv.config();
+
+const main = async () => {
+  try {
+    // Conexión a MongoDB
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log(" Conectado a MongoDB Atlas");
+
+    // Iniciar servidor
     app.listen(app.get("port"));
-    console.log(`Server running on port ${app.get("port")}`);
-}
+    console.log(`🚀 Servidor corriendo en el puerto ${app.get("port")}`);
+  } catch (error) {
+    console.error(" Error al conectar a MongoDB:", error.message);
+    process.exit(1); // Detiene la app si falla la conexión
+  }
+};
 
 main();

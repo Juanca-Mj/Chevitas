@@ -1,10 +1,9 @@
-import getConnection from "../db/database.js";
+import Sucursal from "../models/Sucursales.js";
 
 export const getSucursales = async (req, res) => {
   try {
-    const conn = await getConnection();
-    const result = await conn.query("SELECT * FROM sucursales");
-    res.json(result);
+    const sucursales = await Sucursal.find();
+    res.json(sucursales);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener sucursales" });
   }
@@ -12,8 +11,7 @@ export const getSucursales = async (req, res) => {
 
 export const getSucursal = async (req, res) => {
   try {
-    const conn = await getConnection();
-    const [sucursal] = await conn.query("SELECT * FROM sucursales WHERE id = ?", [req.params.id]);
+    const sucursal = await Sucursal.findById(req.params.id);
     if (!sucursal) return res.status(404).json({ error: "Sucursal no encontrada" });
     res.json(sucursal);
   } catch (err) {
@@ -22,34 +20,20 @@ export const getSucursal = async (req, res) => {
 };
 
 export const createSucursal = async (req, res) => {
-  const { id, nombre, direccion, telefono, ciudad, horario } = req.body;
-  if (!id || !nombre || !direccion) {
-    return res.status(400).json({ error: "Faltan campos obligatorios" });
-  }
   try {
-    const conn = await getConnection();
-    await conn.query(
-      "INSERT INTO sucursales (id, nombre, direccion, telefono, ciudad, horario) VALUES (?, ?, ?, ?, ?, ?)",
-      [id, nombre, direccion, telefono, ciudad, horario]
-    );
-    res.status(201).json({ mensaje: "Sucursal creada", sucursal: req.body });
+    const nuevaSucursal = new Sucursal(req.body);
+    await nuevaSucursal.save();
+    res.status(201).json({ mensaje: "Sucursal creada", sucursal: nuevaSucursal });
   } catch (err) {
-    res.status(500).json({ error: "Error al crear sucursal" });
+    res.status(400).json({ error: "Error al crear sucursal", detalles: err.message });
   }
 };
 
 export const updateSucursal = async (req, res) => {
-  const { nombre, direccion, telefono, ciudad, horario } = req.body;
   try {
-    const conn = await getConnection();
-    const result = await conn.query(
-      "UPDATE sucursales SET nombre=?, direccion=?, telefono=?, ciudad=?, horario=? WHERE id=?",
-      [nombre, direccion, telefono, ciudad, horario, req.params.id]
-    );
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Sucursal no encontrada" });
-    }
-    res.json({ mensaje: "Sucursal actualizada" });
+    const sucursal = await Sucursal.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!sucursal) return res.status(404).json({ error: "Sucursal no encontrada" });
+    res.json({ mensaje: "Sucursal actualizada", sucursal });
   } catch (err) {
     res.status(500).json({ error: "Error al actualizar sucursal" });
   }
@@ -57,11 +41,8 @@ export const updateSucursal = async (req, res) => {
 
 export const deleteSucursal = async (req, res) => {
   try {
-    const conn = await getConnection();
-    const result = await conn.query("DELETE FROM sucursales WHERE id = ?", [req.params.id]);
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Sucursal no encontrada" });
-    }
+    const result = await Sucursal.findByIdAndDelete(req.params.id);
+    if (!result) return res.status(404).json({ error: "Sucursal no encontrada" });
     res.json({ mensaje: "Sucursal eliminada" });
   } catch (err) {
     res.status(500).json({ error: "Error al eliminar sucursal" });

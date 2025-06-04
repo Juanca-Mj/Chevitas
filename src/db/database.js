@@ -1,17 +1,16 @@
-import mysql from "promise-mysql";
-import config from "../config.js";
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
-const connection = mysql.createConnection({
-    host: config.host,
-    database: config.database,
-    user: config.user,
-    password: config.password
-    
-    
-});
+dotenv.config();
 
-const getConnection = () => {
-    return connection;
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log(" Conectado a MongoDB Atlas");
+  } catch (error) {
+    console.error(" Error al conectar a MongoDB:", error.message);
+    process.exit(1); // Detener si falla
+  }
 };
 
-export default getConnection;
+export default connectDB;
