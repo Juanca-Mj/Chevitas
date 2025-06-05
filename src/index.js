@@ -15,7 +15,7 @@ const main = async () => {
     console.log(" Conectado a MongoDB Atlas");
 
     // Iniciar servidor
-    app.listen(app.get("port"));
+   app.listen(app.get("port"), '0.0.0.0');
     console.log(`🚀 Servidor corriendo en el puerto ${app.get("port")}`);
   } catch (error) {
     console.error(" Error al conectar a MongoDB:", error.message);

@@ -3,7 +3,7 @@ import Producto from "../models/Producto.js";
 
 const router = Router();
 
-const S3_URL = "https://chevechita-imgs.s3.amazonaws.com/";
+const S3_URL = "https://chevechita-imgs.s3.us-east-2.amazonaws.com/";
 
 // Obtener todos los productos
 router.get("/", async (req, res) => {
